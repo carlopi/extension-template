@@ -5,6 +5,7 @@
 #include "duckdb/common/exception.hpp"
 #include "duckdb/common/string_util.hpp"
 #include "duckdb/function/scalar_function.hpp"
+#include "duckdb/main/extension_util.hpp"
 
 
 #include <duckdb/parser/parsed_data/create_scalar_function_info.hpp>
@@ -20,22 +21,12 @@ inline void QuackScalarFun(DataChunk &args, ExpressionState &state, Vector &resu
         });
 }
 
-static void LoadInternal(DatabaseInstance &instance) {
-	Connection con(instance);
-    con.BeginTransaction();
-
-    auto &catalog = Catalog::GetSystemCatalog(*con.context);
-
-    CreateScalarFunctionInfo quack_fun_info(
-            ScalarFunction("quack", {LogicalType::VARCHAR}, LogicalType::VARCHAR, QuackScalarFun));
-    quack_fun_info.on_conflict = OnCreateConflict::ALTER_ON_CONFLICT;
-    catalog.CreateFunction(*con.context, &quack_fun_info);
-    con.Commit();
-}
-
 void QuackExtension::Load(DuckDB &db) {
-	LoadInternal(*db.instance);
+	auto &db_instance = *db.instance;
+	ScalarFunction quack_func("quack", {LogicalType::VARCHAR}, LogicalType::VARCHAR, QuackScalarFun);
+	ExtensionUtil::RegisterFunction(db_instance, quack_func);
 }
+
 std::string QuackExtension::Name() {
 	return "quack";
 }
@@ -45,7 +36,8 @@ std::string QuackExtension::Name() {
 extern "C" {
 
 DUCKDB_EXTENSION_API void quack_init(duckdb::DatabaseInstance &db) {
-	LoadInternal(db);
+	duckdb::DuckDB db_wrapper(db);
+	db_wrapper.LoadExtension<duckdb::QuackExtension>();
 }
 
 DUCKDB_EXTENSION_API const char *quack_version() {
