@@ -14,15 +14,27 @@ concurrency:
 jobs:
   duckdb-stable-build:
     name: Build extension binaries
-    uses: carlopi/duckdb/.github/workflows/_extension_distribution.yml@ba9026c6f2043c0e67261e2066512ddab5f902a5
+    uses: carlopi/duckdb/.github/workflows/_extension_distribution.yml@c15b58de4e12b6b781cd7300729f9d4c7a24ec1e
     with:
       duckdb_version: v0.9.2
       extension_name: quack
+      exclude_archs: ""
 
   duckdb-stable-deploy:
     name: Deploy extension binaries
     needs: duckdb-stable-build
     uses: ./.github/workflows/_extension_deploy.yml
+    secrets: inherit
+    with:
+      duckdb_version: v0.9.2
+      extension_name: quack
+      deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
+      deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
+
+  duckdb-wasm-stable-deploy:
+    name: Deploy Wasm extension binaries
+    needs: duckdb-stable-build
+    uses: ./.github/workflows/_extension_deploy_wasm.yml
     secrets: inherit
     with:
       duckdb_version: v0.9.2
