@@ -14,7 +14,7 @@ concurrency:
 jobs:
   duckdb-stable-build:
     name: Build extension binaries
-    uses: duckdb/duckdb/.github/workflows/_extension_distribution.yml@v0.9.1
+    uses: carlopi/duckdb/.github/workflows/_extension_distribution.yml@ba9026c6f2043c0e67261e2066512ddab5f902a5
     with:
       duckdb_version: v0.9.2
       extension_name: quack
