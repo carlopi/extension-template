@@ -13,7 +13,7 @@
 
 set -e
 
-f="/tmp/extension/$1.duckdb_extension.wasm"
+ext="/tmp/extension/$1.duckdb_extension.wasm"
 
 script_dir="$(dirname "$(readlink -f "$0")")"
 

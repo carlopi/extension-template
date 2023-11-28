@@ -1,0 +1,23 @@
+# name: test/sql/quark.test
+# description: test quark extension
+# group: [quark]
+
+# Before we load the extension, this will fail
+statement error
+SELECT quark('Sam');
+----
+Catalog Error: Scalar Function with name quark does not exist!
+
+# Require statement will ensure this test is run with this extension loaded
+require quark
+
+# Confirm the extension works
+query I
+SELECT quark('Sam');
+----
+Quark Sam 🐥
+
+query I
+SELECT quark_openssl_version('Michael');
+----
+<REGEX>:Quark Michael, my linked OpenSSL version is OpenSSL.*
